@@ -1,0 +1,116 @@
+import pygame
+import time
+
+pygame.init()
+back = (255, 255, 255) #цвет фона (background)
+wn = pygame.display.set_mode((500, 500)) #окно программы (main window)
+wn.fill(back)
+clock = pygame.time.Clock()
+clock.tick(40)
+racket_x = 200
+racket_y = 400
+game_over = False
+class area():
+    def __init__(self,x=0, y=0, width = 10 , height = 10, color=None):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.fill_color = back
+        if color:
+            self.fill_color = color
+    def color(self,new_color):
+        self.fill_color = new_color
+    def fill(self,shift_x=0,shift_y=0):
+        pygame.draw.rect(wn,self.fill_color,self.rect)
+
+    def collidepoint(self, x, y):
+        return self.rect.collidepoint(x, y)
+    def colliderect(self,rect):
+        return self.rect.colliderect(rect)
+class Picture(area):
+    def __init__(self, filename, x=0, y=0, width = 10, height = 10):
+        area.__init__(self, x = x, y = y, width = width, height = height, color = None)
+        self.image = pygame.image.load(filename)
+    def draw(self):
+        wn.blit(self.image, (self.rect.x, self.rect.y))
+class Label(area):
+    def set_text(self, text, fsize=12, text_color=(0, 0, 0)):
+        self.image = pygame.font.Font('verdana', fsize).render(text,True,text_color)
+
+    def draw(self,shift_x=0, shift_y=0):
+        self.fill()
+        wn.blit(self.image, (self.rect.x + shift_x,self.rect.y + shift_y))  
+
+ball = Picture('pill.png',110,300,50,50)
+platform = Picture('cat.png', racket_x, racket_y, 100, 25)
+speed_x = 3
+speed_y = 3
+start_x =5
+start_y =5
+monsters = []
+n=9
+move_right = False
+move_left = False
+
+for i in range(3):                 #отрисовка монстриков
+    y = start_y + (50* i)
+    x = start_x + (27* i)
+    for i in range (n):
+        enemy = Picture('poter.jpg', x, y, 51,51)
+        monsters.append(enemy)
+        x += 60
+    n -= 1
+
+
+
+
+while not game_over:
+    ball.rect.x += speed_x
+    ball.rect.y += speed_y        
+    ball.fill()
+    platform.fill()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                move_right = True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_RIGHT:
+                move_right = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                move_left = True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                move_left = False
+    if move_right:
+        platform.rect.x += 3    
+    if move_left:
+        platform.rect.x -=3
+    if ball.colliderect(platform.rect):
+        speed_y *= -1
+    if ball.rect.y < 0:
+        speed_y *= -1
+    if ball.rect.x > 450 or ball.rect.x < 0:
+        speed_x *= -1
+    if ball.rect.y > 450:
+        time_text = Label(150,150,50,50,back)
+        time_text.set_text('GIGACHAD WIN',50, (255,0,0))
+        time_text.draw(10, 10)
+        game_over = True
+    if len(monsters) == 0:
+        time_text = Label(150,150,50,50,back)
+        time_text.set_text('YOU WIN',60, (0,200,0))
+        time_text.draw(10, 10)
+        game_over = True
+
+    for m in monsters:
+        m.draw()
+        if m.rect.colliderect(ball.rect):
+            monsters.remove(m)
+            m.fill()
+            speed_y *= -1
+    platform.draw()
+    ball.draw()
+    pygame.display.update()
+    clock.tick(40)
