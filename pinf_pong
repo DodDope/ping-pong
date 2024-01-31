@@ -2,8 +2,6 @@ from pygame import *
 from random import randint
 
 
-img_back = "galaxy.jpg" # фон игры
-
 #класс-родитель для других спрайтов
 class GameSprite(sprite.Sprite):
  #конструктор класса
@@ -33,15 +31,21 @@ class Player(GameSprite):
         keys = key.get_pressed()
         if keys[K_w] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys[K_s] and self.rect.y < win_width - 80:
+        if keys[K_s] and self.rect.y < win_width -230:
             self.rect.y += self.speed
     def update_r(self):
         keys = key.get_pressed()
         if keys[K_UP] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if keys[K_DOWN] and self.rect.y < win_width - 80:
+        if keys[K_DOWN] and self.rect.y < win_width -230:
             self.rect.y += self.speed
 
+rocket_left = Player("Wall.png", 15, 100, 40, 140, 3)
+rocket_right = Player("Wall.png", 535, 100, 40, 140, 3)
+Ball = Player("Ball.png", 100, 200, 50, 50, 5)
+
+speed_x = 3
+speed_y = 3
 
 win_width = 600
 win_height = 500
@@ -63,4 +67,19 @@ while game:
     if finish != True:
         window.fill(back)
 
+        rocket_left.reset()
+        rocket_right.reset()
+        Ball.reset()
+
+        rocket_left.update_l()
+        rocket_right.update_r()
+
+        Ball.rect.x += speed_x
+        Ball.rect.y += speed_y
+
+        if sprite.collide_rect(rocket_left, Ball) or sprite.collide_rect(rocket_right, Ball):
+            speed_x *= -1
+        if Ball.rect.y > win_height-50 or Ball.rect.y < 10:
+            speed_y *= -1
     display.update()
+    clock.tick(FPS)
