@@ -22,8 +22,6 @@ class GameSprite(sprite.Sprite):
  #метод, отрисовывающий героя на окне
    def reset(self):
        window.blit(self.image, (self.rect.x, self.rect.y))
-
-
 #класс главного игрока
 class Player(GameSprite):
    #метод для управления спрайтом стрелками клавиатуры
@@ -40,12 +38,20 @@ class Player(GameSprite):
         if keys[K_DOWN] and self.rect.y < win_width -230:
             self.rect.y += self.speed
 
-rocket_left = Player("Wall.png", 15, 100, 40, 140, 3)
-rocket_right = Player("Wall.png", 535, 100, 40, 140, 3)
+font.init()
+font1 = font.Font(None, 35)
+lose1 = font1.render(
+    "PLAYER 1 LOSE!", True, (180, 0 ,0)
+)
+lose2 = font1.render(
+    "PLAYER 2 LOSE!", True, (180, 0, 0) 
+)
+rocket_left = Player("Wall.png", 15, 100, 40, 140, 4)
+rocket_right = Player("Wall.png", 535, 100, 40, 140, 4)
 Ball = Player("Ball.png", 100, 200, 50, 50, 5)
 
-speed_x = 3
-speed_y = 3
+speed_x = 2
+speed_y = 2
 
 win_width = 600
 win_height = 500
@@ -79,7 +85,23 @@ while game:
 
         if sprite.collide_rect(rocket_left, Ball) or sprite.collide_rect(rocket_right, Ball):
             speed_x *= -1
+            if 1 < speed_x < 8:
+                speed_x += 1
+            if -1 > speed_x > -8:
+                speed_x -= 1
+        
         if Ball.rect.y > win_height-50 or Ball.rect.y < 10:
             speed_y *= -1
+            if 1 < speed_y < 8:
+                speed_y += 1
+            if -1 > speed_y > -8:
+                speed_y -= 1 
+
+        if Ball.rect.x < 0:
+            finish = True
+            window.blit(lose1, (200, 200))
+        if Ball.rect.x > 600:
+            finish = True
+            window.blit(lose2, (200, 200))
     display.update()
     clock.tick(FPS)
